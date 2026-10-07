@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Record Management System | DSA Mini Project</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dsa.css">
+
+    <!-- External Libraries (Chart.js, SheetJS, html2pdf) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Floating Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- ================================================================ -->
+    <!-- 1. AUTHENTICATION / LOGIN VIEW -->
+    <!-- ================================================================ -->
+    <div id="login-modal" class="login-view-wrapper" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h2>Apex University</h2>
+                <p>Student Record Management System (SRMS)</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="login-username"><i class="fas fa-user" style="margin-right: 6px;"></i> Username</label>
+                    <input type="text" id="login-username" class="form-input" placeholder="Enter username (e.g. admin)" required autocomplete="username">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="login-password"><i class="fas fa-lock" style="margin-right: 6px;"></i> Password</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Enter password (e.g. admin123)" required autocomplete="current-password">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </button>
+                    <button type="button" id="login-reset-btn" class="btn btn-secondary" style="flex: 1; justify-content: center;">
+            <i class="fas fa-undo"></i> Reset
+          </button>
+                </div>
+
+                <div class="demo-credentials-pill">
+                    <div>
+                        <span>Demo: <code>admin</code> / <code>admin123</code></span>
+                    </div>
+                    <button type="button" id="fill-demo-btn" class="btn btn-sm btn-secondary" style="padding: 3px 8px; font-size: 11px;">
+            Auto Fill
+          </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 2. MAIN APPLICATION CONTAINER -->
+    <!-- ================================================================ -->
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="sidebar-title">
+                    <h2>SRMS Portal</h2>
+                    <p>DS Mini Project</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Main Menu</div>
+
+                <div class="nav-item active" data-tab="dashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </div>
+
+                <div class="nav-item" data-tab="students">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Student Management</span>
+                </div>
+
+                <div class="nav-item" data-tab="attendance">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Attendance Module</span>
+                </div>
+
+                <div class="nav-item" data-tab="marks">
+                    <i class="fas fa-award"></i>
+                    <span>Marks Management</span>
+                </div>
+
+                <div class="nav-item" data-tab="reports">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Reports & Export</span>
+                </div>
+
+                <div class="nav-section-title">DSA Techniques Module</div>
+
+                <div class="nav-item" data-tab="dsa">
+                    <i class="fas fa-network-wired"></i>
+                    <span>Algorithms Module</span>
+                    <span class="nav-badge">10 DSA</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-snippet">
+                    <div class="user-avatar" id="sidebar-user-avatar">A</div>
+                    <div class="user-meta">
+                        <div class="user-name" id="sidebar-user-name">Admin</div>
+                        <div class="user-role" id="sidebar-user-role">Administrator</div>
+                    </div>
+                    <button class="btn-icon" id="logout-nav-btn" title="Logout" style="width: 30px; height: 30px; font-size: 12px;">
+            <i class="fas fa-power-off" style="color: var(--danger);"></i>
+          </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN WRAPPER -->
+        <div class="main-wrapper">
+
+            <!-- TOP NAVBAR -->
+            <header class="top-navbar">
+                <div class="top-navbar-left">
+                    <button class="menu-toggle-btn" id="mobile-menu-toggle">
+            <i class="fas fa-bars"></i>
+          </button>
+                    <h1 class="page-title" id="navbar-page-title">Dashboard Overview</h1>
+                </div>
+
+                <div class="top-navbar-right">
+                    <!-- Database Status Pill -->
+                    <div class="db-status-pill" title="Database Connection Status">
+                        <span class="status-dot"></span>
+                        <span id="db-status-text">MySQL 8.0</span>
+                    </div>
+
+                    <!-- Theme Switcher -->
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Light / Dark Mode">
+            <i class="fas fa-moon"></i>
+          </button>
+                </div>
+            </header>
+
+            <!-- CONTENT AREA -->
+            <main class="content-area">
+
+                <!-- ============================================================== -->
+                <!-- VIEW 1: DASHBOARD -->
+                <!-- ============================================================== -->
+                <section id="view-dashboard" class="view-section active">
+                    <!-- Metric Stat Cards -->
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <h3>Total Students</h3>
+                                <div class="stat-number" id="stat-total-students">12</div>
+                            </div>
+                            <div class="stat-icon blue">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <h3>Average Attendance</h3>
+                                <div class="stat-number" id="stat-avg-attendance">85.4%</div>
+                            </div>
+                            <div class="stat-icon green">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <h3>Average Marks</h3>
+                                <div class="stat-number" id="stat-avg-marks">82.5</div>
+                            </div>
+                            <div class="stat-icon amber">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <h3>Total Courses</h3>
+                                <div class="stat-number" id="stat-total-courses">4</div>
+                            </div>
+                            <div class="stat-icon purple">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Buttons -->
+                    <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" id="dash-quick-add-student">
+              <i class="fas fa-plus"></i> Add New Student
+            </button>
+                        <button class="btn btn-undo" id="dash-quick-undo">
+              <i class="fas fa-undo"></i> Undo Last Student Action (Stack)
+            </button>
+                        <button class="btn btn-secondary" onclick="App.switchTab('reports')">
+              <i class="fas fa-file-export"></i> Generate Reports
+            </button>
+                        <button class="btn btn-secondary" onclick="App.switchTab('dsa')">
+              <i class="fas fa-cubes"></i> Open DSA Playground
+            </button>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="charts-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Grade Distribution Breakdown</h3>
+                            </div>
+                            <div class="card-body" style="height: 280px;">
+                                <canvas id="gradeDistributionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-chart-pie" style="color: var(--secondary);"></i> Course Enrollment</h3>
+                            </div>
+                            <div class="card-body" style="height: 280px;">
+                                <canvas id="courseEnrollmentChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Students List -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history" style="color: var(--warning);"></i> Recently Registered Students</h3>
+                            <button class="btn btn-sm btn-secondary" onclick="App.switchTab('students')">View All</button>
+                        </div>
+                        <div class="card-body" id="recent-students-list">
+                            <!-- Rendered via JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 2: STUDENT MANAGEMENT -->
+                <!-- ============================================================== -->
+                <section id="view-students" class="view-section">
+                    <!-- Toolbar -->
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="student-search-input" placeholder="Search by name, ID, email...">
+                            </div>
+
+                            <select id="student-filter-course" class="form-select">
+                <option value="">All Courses</option>
+                <option value="MCA">MCA</option>
+                <option value="Data Science">Data Science</option>
+                <option value="AI & ML">AI & ML</option>
+                <option value="B.Tech CSE">B.Tech CSE</option>
+              </select>
+                        </div>
+
+                        <div class="toolbar-right">
+                            <button class="btn btn-undo" id="btn-undo-action" title="Pop last action from Stack">
+                <i class="fas fa-undo-alt"></i> Undo Action (Stack)
+              </button>
+                            <button class="btn btn-primary" id="btn-add-student-modal">
+                <i class="fas fa-user-plus"></i> Add Student
+              </button>
+                        </div>
+                    </div>
+
+                    <!-- Students Table -->
+                    <div class="table-responsive">
+                        <table class="custom-table" id="students-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" onclick="Students.changeSort('student_id')">
+                                        Student ID <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="sortable" onclick="Students.changeSort('name')">
+                                        Student Name <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th>Gender</th>
+                                    <th>DOB</th>
+                                    <th class="sortable" onclick="Students.changeSort('course')">
+                                        Course <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="sortable" onclick="Students.changeSort('semester')" style="text-align: center;">
+                                        Sem <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="sortable" onclick="Students.changeSort('attendance_percentage')">
+                                        Attendance % <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="sortable" onclick="Students.changeSort('average_marks')">
+                                        Avg Marks <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th style="width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container">
+                        <div id="student-pagination-info">Showing 0 of 0 students</div>
+                        <div class="pagination-controls" id="student-pagination-controls"></div>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 3: ATTENDANCE MODULE -->
+                <!-- ============================================================== -->
+                <section id="view-attendance" class="view-section">
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <h2 style="font-size: 16px; font-weight: 700;">Student Attendance Registry</h2>
+                        </div>
+                        <div class="toolbar-right">
+                            <button class="btn btn-primary" id="btn-add-attendance-modal">
+                <i class="fas fa-calendar-plus"></i> Record / Update Attendance
+              </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Course</th>
+                                    <th style="text-align: center;">Total Classes</th>
+                                    <th style="text-align: center;">Attended Classes</th>
+                                    <th>Attendance %</th>
+                                    <th style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-table-body">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 4: MARKS MODULE -->
+                <!-- ============================================================== -->
+                <section id="view-marks" class="view-section">
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <h2 style="font-size: 16px; font-weight: 700;">Student Academic Evaluation & Marks Registry</h2>
+                        </div>
+                        <div class="toolbar-right">
+                            <button class="btn btn-primary" id="btn-add-marks-modal">
+                <i class="fas fa-pen-alt"></i> Enter Subject Marks
+              </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Subject Name</th>
+                                    <th style="text-align: center;">Internal Marks (30)</th>
+                                    <th style="text-align: center;">External Marks (70)</th>
+                                    <th style="text-align: center;">Total Marks (100)</th>
+                                    <th style="text-align: center;">Grade</th>
+                                    <th style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="marks-table-body">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 5: REPORTS MODULE -->
+                <!-- ============================================================== -->
+                <section id="view-reports" class="view-section">
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <label for="report-type-select" style="font-size: 13px; font-weight: 600; margin-right: 6px;">Select Report:</label>
+                            <select id="report-type-select" class="form-select" style="min-width: 260px;">
+                <option value="students">1. Comprehensive Student Report</option>
+                <option value="attendance">2. Attendance Report (Defaulters & High)</option>
+                <option value="marks">3. Marks & Grade Distribution Report</option>
+                <option value="top-performers">4. Top Performing Students (Honor Roll)</option>
+                <option value="scholarship">5. Scholarship Eligible Students (Greedy)</option>
+              </select>
+                        </div>
+
+                        <div class="toolbar-right">
+                            <button class="btn btn-secondary" id="btn-print-report">
+                <i class="fas fa-print"></i> Print
+              </button>
+                            <button class="btn btn-secondary" id="btn-export-excel">
+                <i class="fas fa-file-excel" style="color: #10b981;"></i> Export to Excel
+              </button>
+                            <button class="btn btn-primary" id="btn-export-pdf">
+                <i class="fas fa-file-pdf"></i> Export as PDF
+              </button>
+                        </div>
+                    </div>
+
+                    <!-- Report Rendering Canvas -->
+                    <div class="card">
+                        <div class="card-body" id="report-render-area">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 6: DSA MODULE (10 ALGORITHMS VISUALIZER) -->
+                <!-- ============================================================== -->
+                <section id="view-dsa" class="view-section">
+                    <div class="dsa-header-banner">
+                        <div>
+                            <h2><i class="fas fa-microchip" style="color: var(--primary);"></i> Data Structures & Algorithms Playground</h2>
+                            <p>Interactive demonstration of all 10 Data Structures and Algorithmic Techniques</p>
+                        </div>
+                        <div>
+                            <span class="complexity-tag" style="font-size: 14px;">MCA Mini Project</span>
+                        </div>
+                    </div>
+
+                    <!-- DSA Navigation Tabs -->
+                    <div class="dsa-tabs-nav">
+                        <button class="dsa-tab-btn active" data-target="linkedlist"><i class="fas fa-link"></i> 1. Linked List</button>
+                        <button class="dsa-tab-btn" data-target="stack"><i class="fas fa-layer-group"></i> 2. Stack (Undo)</button>
+                        <button class="dsa-tab-btn" data-target="queue"><i class="fas fa-bars-staggered"></i> 3. Queue (Registration)</button>
+                        <button class="dsa-tab-btn" data-target="bst"><i class="fas fa-tree"></i> 4. BST (Binary Tree)</button>
+                        <button class="dsa-tab-btn" data-target="graph"><i class="fas fa-project-diagram"></i> 5. Graph (BFS/DFS)</button>
+                        <button class="dsa-tab-btn" data-target="searching"><i class="fas fa-search"></i> 6. Searching (Linear/Binary)</button>
+                        <button class="dsa-tab-btn" data-target="sorting"><i class="fas fa-arrow-down-a-z"></i> 7. Bubble Sort</button>
+                        <button class="dsa-tab-btn" data-target="greedy"><i class="fas fa-gem"></i> 8. Greedy Scholarship</button>
+                        <button class="dsa-tab-btn" data-target="dp"><i class="fas fa-chart-line"></i> 9. DP Trend Analysis</button>
+                        <button class="dsa-tab-btn" data-target="backtracking"><i class="fas fa-code-branch"></i> 10. Backtracking Courses</button>
+                    </div>
+
+                    <!-- DSA PANE 1: LINKED LIST -->
+                    <div id="pane-linkedlist" class="algo-pane active">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Concept:</strong> Dynamic Student Record Linked Chain</div>
+                            <div class="algo-info-pill"><strong>Insert Head:</strong> <span class="complexity-tag">O(1)</span></div>
+                            <div class="algo-info-pill"><strong>Insert Tail:</strong> <span class="complexity-tag">O(1)</span></div>
+                            <div class="algo-info-pill"><strong>Search / Delete:</strong> <span class="complexity-tag">O(n)</span></div>
+                        </div>
+
+                        <div class="card" style="margin-bottom: 20px;">
+                            <div class="card-header">
+                                <h3>Visual Linked List Nodes</h3>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-sm btn-secondary" id="btn-ll-traverse"><i class="fas fa-sync"></i> Traverse</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="ll-container" id="ll-visual-nodes"></div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Insert Node</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-grid" style="margin-bottom: 12px;">
+                                        <div class="form-group">
+                                            <label>Student ID</label>
+                                            <input type="text" id="ll-input-id" value="STU-2001" class="form-input">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Name</label>
+                                            <input type="text" id="ll-input-name" value="Kunal Mehra" class="form-input">
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label>Course</label>
+                                            <input type="text" id="ll-input-course" value="MCA" class="form-input">
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button class="btn btn-primary" id="btn-ll-insert-head"><i class="fas fa-arrow-left"></i> Insert at Head</button>
+                                        <button class="btn btn-secondary" id="btn-ll-insert-tail">Insert at Tail <i class="fas fa-arrow-right"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Delete Node by ID</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group" style="margin-bottom: 16px;">
+                                        <label>Student ID to Delete</label>
+                                        <input type="text" id="ll-delete-id" placeholder="e.g. STU-1002" class="form-input">
+                                    </div>
+                                    <button class="btn btn-danger" id="btn-ll-delete"><i class="fas fa-trash"></i> Unlink & Delete Node</button>
+
+                                    <div style="margin-top: 20px;">
+                                        <h4 style="font-size: 13px; margin-bottom: 6px;">Traversal Steps:</h4>
+                                        <div class="step-log-box" id="ll-step-logs"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 2: STACK (UNDO) -->
+                    <div id="pane-stack" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Concept:</strong> Undo Mechanism via LIFO (Last In First Out)</div>
+                            <div class="algo-info-pill"><strong>Push:</strong> <span class="complexity-tag">O(1)</span></div>
+                            <div class="algo-info-pill"><strong>Pop:</strong> <span class="complexity-tag">O(1)</span></div>
+                            <div class="algo-info-pill"><strong>Top Element:</strong> <span class="complexity-tag">O(1)</span></div>
+                        </div>
+
+                        <div class="stack-visualizer-box">
+                            <div>
+                                <h4 style="font-size: 14px; margin-bottom: 10px;">
+                                    Undo Call Stack <span class="badge badge-warning" id="stack-size-badge">0 items</span>
+                                </h4>
+                                <div class="stack-column" id="stack-frames-column"></div>
+                            </div>
+
+                            <div style="flex: 1;">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>Stack Operations & Rollback</h3>
+                                        <button class="btn btn-sm btn-secondary" id="btn-stack-refresh"><i class="fas fa-sync"></i> Refresh Stack</button>
+                                    </div>
+                                    <div class="card-body">
+                                        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 16px;">
+                                            Every time you <strong>Add</strong>, <strong>Update</strong>, or <strong>Delete</strong> a student in the Student Management module, the previous system state is pushed onto this Stack. Clicking <strong>Undo Action</strong>                                            pops the top element and restores the exact database state!
+                                        </p>
+                                        <div style="display: flex; gap: 12px;">
+                                            <button class="btn btn-undo" id="btn-stack-pop"><i class="fas fa-undo"></i> Pop & Undo Last Action</button>
+                                            <button class="btn btn-primary" onclick="App.switchTab('students')">Go to Student Management</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 3: QUEUE (REGISTRATION) -->
+                    <div id="pane-queue" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Concept:</strong> Student Admission Processing (FIFO)</div>
+                            <div class="algo-info-pill"><strong>Enqueue:</strong> <span class="complexity-tag">O(1)</span></div>
+                            <div class="algo-info-pill"><strong>Dequeue:</strong> <span class="complexity-tag">O(1)</span></div>
+                        </div>
+
+                        <div class="card" style="margin-bottom: 20px;">
+                            <div class="card-header">
+                                <h3>Live Registration Queue Conveyor <span class="badge badge-info" id="queue-size-badge">2 in queue</span></h3>
+                                <button class="btn btn-success btn-sm" id="btn-queue-dequeue">
+                  <i class="fas fa-check"></i> Process & Dequeue Front Applicant
+                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="queue-conveyor" id="queue-conveyor-slots"></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Enqueue New Student Applicant</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-grid" style="margin-bottom: 14px;">
+                                    <div class="form-group">
+                                        <label>Applicant Full Name</label>
+                                        <input type="text" id="queue-input-name" placeholder="e.g. Priya Sharma" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email Address (@kristujayanti.com)</label>
+                                        <input type="email" id="queue-input-email" placeholder="priya@kristujayanti.com" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Applied Course</label>
+                                        <select id="queue-input-course" class="form-select">
+                      <option value="MCA">MCA</option>
+                      <option value="Data Science">Data Science</option>
+                      <option value="AI & ML">AI & ML</option>
+                    </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Semester</label>
+                                        <select id="queue-input-semester" class="form-select">
+                      <option value="1">Semester 1</option>
+                    </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="btn-queue-enqueue">
+                  <i class="fas fa-user-plus"></i> Enqueue Applicant
+                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 4: BST -->
+                    <div id="pane-bst" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Concept:</strong> Binary Search Tree by Student ID Key</div>
+                            <div class="algo-info-pill"><strong>Search:</strong> <span class="complexity-tag">O(log n) avg</span></div>
+                            <div class="algo-info-pill"><strong>Insert:</strong> <span class="complexity-tag">O(log n) avg</span></div>
+                            <div class="algo-info-pill"><strong>Inorder (Sorted):</strong> <span class="complexity-tag">O(n)</span></div>
+                        </div>
+
+                        <div class="card" style="margin-bottom: 20px;">
+                            <div class="card-header">
+                                <h3>Visual BST Hierarchy</h3>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                    <input type="text" id="bst-search-input" placeholder="Search ID (e.g. 1004)" class="form-input" style="width: 150px; padding: 5px 10px; font-size: 12px;">
+                                    <button class="btn btn-sm btn-primary" id="btn-bst-search"><i class="fas fa-search"></i> Search</button>
+                                    <input type="text" id="bst-insert-id" placeholder="ID (e.g. 1015)" class="form-input" style="width: 110px; padding: 5px 8px; font-size: 12px; margin-left: 10px;">
+                                    <input type="text" id="bst-insert-name" placeholder="Name" class="form-input" style="width: 110px; padding: 5px 8px; font-size: 12px;">
+                                    <button class="btn btn-sm btn-secondary" id="btn-bst-insert"><i class="fas fa-plus"></i> Insert</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="tree-canvas-container" id="bst-canvas-area"></div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>BST Inorder Traversal (Sorted Output)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="bst-inorder-list" style="line-height: 2;"></div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Search Decision Path Logs</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="step-log-box" id="bst-search-logs">
+                                        <p style="color:var(--text-muted);">Enter a Student ID above to visualize the BST comparison path (Left vs Right decisions).</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 5: GRAPH (BFS + DFS) -->
+                    <div id="pane-graph" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Concept:</strong> Department → Course → Student Graph Hierarchy</div>
+                            <div class="algo-info-pill"><strong>BFS (Queue):</strong> <span class="complexity-tag">O(V + E)</span></div>
+                            <div class="algo-info-pill"><strong>DFS (Stack/Recursion):</strong> <span class="complexity-tag">O(V + E)</span></div>
+                        </div>
+
+                        <div class="card" style="margin-bottom: 20px;">
+                            <div class="card-header">
+                                <h3 id="graph-traversal-title">Graph Traversal Sequence</h3>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-sm btn-primary" id="btn-run-bfs"><i class="fas fa-layer-group"></i> Run BFS</button>
+                                    <button class="btn btn-sm btn-secondary" id="btn-run-dfs"><i class="fas fa-code-branch"></i> Run DFS</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="traversal-sequence" id="graph-traversal-chips"></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Graph Traversal Step Trace</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="step-log-box" id="graph-step-logs" style="max-height: 280px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 6: SEARCHING -->
+                    <div id="pane-searching" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Linear Search:</strong> Search by Name <span class="complexity-tag">O(n)</span></div>
+                            <div class="algo-info-pill"><strong>Binary Search:</strong> Search by ID <span class="complexity-tag">O(log n)</span></div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <!-- Linear Search Card -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Linear Search (by Student Name)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+                                        <input type="text" id="search-linear-name" value="Diya" placeholder="Student name..." class="form-input">
+                                        <button class="btn btn-primary" id="btn-run-linear-search">Search</button>
+                                    </div>
+                                    <div style="display: flex; gap: 14px; margin-bottom: 14px; font-size: 13px;">
+                                        <div>Time: <strong id="linear-time-metric" style="color: var(--primary);">-</strong></div>
+                                        <div>Comparisons: <strong id="linear-comp-metric">-</strong></div>
+                                    </div>
+                                    <div class="step-log-box" id="linear-search-logs"></div>
+                                </div>
+                            </div>
+
+                            <!-- Binary Search Card -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Binary Search (by Student ID)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+                                        <input type="text" id="search-binary-id" value="STU-1008" placeholder="Student ID..." class="form-input">
+                                        <button class="btn btn-primary" id="btn-run-binary-search">Search</button>
+                                    </div>
+                                    <div style="display: flex; gap: 14px; margin-bottom: 14px; font-size: 13px;">
+                                        <div>Time: <strong id="binary-time-metric" style="color: var(--primary);">-</strong></div>
+                                        <div>Comparisons: <strong id="binary-comp-metric">-</strong></div>
+                                    </div>
+                                    <div class="step-log-box" id="binary-search-logs"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 7: SORTING -->
+                    <div id="pane-sorting" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Algorithm:</strong> Adaptive Bubble Sort</div>
+                            <div class="algo-info-pill"><strong>Best Case:</strong> <span class="complexity-tag">O(n)</span></div>
+                            <div class="algo-info-pill"><strong>Average / Worst:</strong> <span class="complexity-tag">O(n^2)</span></div>
+                            <div class="algo-info-pill"><strong>Space:</strong> <span class="complexity-tag">O(1) in-place</span></div>
+                        </div>
+
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <label>Sort By:</label>
+                                <select id="bubble-sort-field" class="form-select">
+                  <option value="name">Student Name</option>
+                  <option value="attendance_percentage">Attendance Percentage</option>
+                  <option value="average_marks" selected>Average Marks</option>
+                </select>
+
+                                <label style="margin-left: 10px;">Order:</label>
+                                <select id="bubble-sort-dir" class="form-select">
+                  <option value="asc">Ascending (A-Z, Low to High)</option>
+                  <option value="desc" selected>Descending (High to Low)</option>
+                </select>
+
+                                <button class="btn btn-primary" id="btn-run-bubble-sort" style="margin-left: 10px;">
+                  <i class="fas fa-play"></i> Run Bubble Sort
+                </button>
+                            </div>
+
+                            <div class="toolbar-right" style="font-size: 13px; gap: 14px;">
+                                <div>Comparisons: <strong id="bubble-comp-metric">-</strong></div>
+                                <div>Swaps: <strong id="bubble-swaps-metric">-</strong></div>
+                                <div>Passes: <strong id="bubble-passes-metric">-</strong></div>
+                                <div>Time: <strong id="bubble-time-metric" style="color: var(--primary);">-</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Sorted Results Array</h3>
+                            </div>
+                            <div class="card-body" id="bubble-sorted-results"></div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 8: GREEDY ALGORITHM -->
+                    <div id="pane-greedy" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Strategy:</strong> Greedy Choice Selection (Highest Merit First)</div>
+                            <div class="algo-info-pill"><strong>Threshold:</strong> Attendance &gt; 85% AND Marks &gt; 80%</div>
+                            <div class="algo-info-pill"><strong>Complexity:</strong> <span class="complexity-tag">O(n log n)</span></div>
+                        </div>
+
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <label>Available Scholarship Quota (Seats):</label>
+                                <input type="number" id="greedy-quota-input" value="4" min="1" max="15" class="form-input" style="width: 80px;">
+                                <button class="btn btn-primary" id="btn-run-greedy">
+                  <i class="fas fa-filter"></i> Run Greedy Evaluation
+                </button>
+                            </div>
+
+                            <div class="toolbar-right" style="gap: 16px; font-size: 13px;">
+                                <div>Eligible: <strong id="greedy-eligible-metric" style="color:var(--info);">-</strong></div>
+                                <div>Awarded: <strong id="greedy-awarded-metric" style="color:var(--success);">-</strong></div>
+                                <div>Budget Spent: <strong id="greedy-budget-metric" style="color:var(--primary);">-</strong></div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;">
+                            <div>
+                                <h4 style="font-size: 14px; margin-bottom: 10px;">Awarded Scholars (Selected Greedily)</h4>
+                                <div id="greedy-awarded-cards" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                            </div>
+
+                            <div>
+                                <h4 style="font-size: 14px; margin-bottom: 10px;">Step-by-Step Allocation Trace</h4>
+                                <div class="step-log-box" id="greedy-trace-logs" style="max-height: 380px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 9: DYNAMIC PROGRAMMING -->
+                    <div id="pane-dp" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Concept:</strong> Performance Trend Analysis (Longest Non-Decreasing Subsequence)</div>
+                            <div class="algo-info-pill"><strong>Recurrence:</strong> <code>dp[i] = 1 + max(dp[j])</code> for all <code>j &lt; i, marks[j] &le; marks[i]</code></div>
+                            <div class="algo-info-pill"><strong>Complexity:</strong> <span class="complexity-tag">O(n^2)</span></div>
+                        </div>
+
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <button class="btn btn-primary" id="btn-run-dp">
+                  <i class="fas fa-chart-line"></i> Recompute DP Trajectory
+                </button>
+                            </div>
+                            <div class="toolbar-right" style="gap: 16px; font-size: 13px;">
+                                <div>Longest Streak: <strong id="dp-streak-metric" style="color: var(--success);">-</strong></div>
+                                <div>Overall Trajectory: <strong id="dp-growth-metric">-</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="charts-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Semester Progression Chart (DP Streak Highlighted)</h3>
+                                </div>
+                                <div class="card-body" style="height: 300px;">
+                                    <canvas id="dpTrajectoryChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>DP State Transition Table</h3>
+                                </div>
+                                <div class="card-body">
+                                    <table class="dp-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Semester</th>
+                                                <th>Marks</th>
+                                                <th>dp[i]</th>
+                                                <th>From</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dp-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DSA PANE 10: BACKTRACKING -->
+                    <div id="pane-backtracking" class="algo-pane">
+                        <div class="algo-info-strip">
+                            <div class="algo-info-pill"><strong>Concept:</strong> Prerequisite Constraint Validation & Decision Tree Pruning</div>
+                            <div class="algo-info-pill"><strong>Exploration:</strong> Depth-First Branch & Bound</div>
+                            <div class="algo-info-pill"><strong>Complexity:</strong> <span class="complexity-tag">O(b^d) with pruning</span></div>
+                        </div>
+
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <label>Completed Courses:</label>
+                                <input type="text" id="bt-completed-courses" value="CS101" class="form-input" style="width: 140px;">
+
+                                <label style="margin-left: 10px;">Courses to Select:</label>
+                                <input type="number" id="bt-target-count" value="3" min="1" max="5" class="form-input" style="width: 60px;">
+
+                                <label style="margin-left: 10px;">Max Credits:</label>
+                                <input type="number" id="bt-max-credits" value="11" min="6" max="20" class="form-input" style="width: 70px;">
+
+                                <button class="btn btn-primary" id="btn-run-backtracking" style="margin-left: 10px;">
+                  <i class="fas fa-play"></i> Generate Valid Plans
+                </button>
+                            </div>
+
+                            <div class="toolbar-right" style="gap: 14px; font-size: 13px;">
+                                <div><strong id="bt-plans-metric" style="color:var(--success);">-</strong></div>
+                                <div><strong id="bt-pruned-metric" style="color:var(--danger);">-</strong></div>
+                                <div><strong id="bt-states-metric">-</strong></div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <h4 style="font-size: 14px; margin-bottom: 10px;">Valid Course Combinations (Prerequisites Satisfied)</h4>
+                                <div id="bt-valid-plans-list"></div>
+                            </div>
+
+                            <div>
+                                <h4 style="font-size: 14px; margin-bottom: 10px;">Backtracking Decision & Pruning Log</h4>
+                                <div class="step-log-box" id="bt-execution-trace" style="max-height: 380px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- MODAL: ADD / EDIT STUDENT -->
+    <!-- ================================================================ -->
+    <div class="modal-backdrop" id="student-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="student-modal-title">Add New Student</h3>
+                <button class="modal-close-btn" onclick="App.closeModal('student-modal')">&times;</button>
+            </div>
+            <form id="student-form">
+                <div class="modal-body">
+                    <input type="hidden" id="student-form-mode" value="ADD">
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Student ID *</label>
+                            <input type="text" id="student-id-input" placeholder="e.g. STU-1013" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="student-name-input" placeholder="e.g. Rahul Sharma" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gender *</label>
+                            <select id="student-gender-input">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Date of Birth *</label>
+                            <input type="date" id="student-dob-input" value="2002-01-01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address (@kristujayanti.com) *</label>
+                            <input type="email" id="student-email-input" placeholder="firstname.lastname@kristujayanti.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="student-phone-input" placeholder="9876543210" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Course *</label>
+                            <select id="student-course-input" required>
+                <option value="MCA">MCA</option>
+                <option value="Data Science">Data Science</option>
+                <option value="AI & ML">AI & ML</option>
+                <option value="B.Tech CSE">B.Tech CSE</option>
+              </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Semester *</label>
+                            <select id="student-semester-input" required>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3" selected>Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+              </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Address *</label>
+                            <textarea id="student-address-input" placeholder="Enter complete residential address" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="App.closeModal('student-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- MODAL: VIEW STUDENT DETAILS -->
+    <!-- ================================================================ -->
+    <div class="modal-backdrop" id="student-details-modal">
+        <div class="modal-box modal-lg">
+            <div class="modal-header">
+                <h3>Student Comprehensive Profile</h3>
+                <button class="modal-close-btn" onclick="App.closeModal('student-details-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="student-details-content">
+                <!-- Rendered dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="App.closeModal('student-details-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- MODAL: ATTENDANCE FORM -->
+    <!-- ================================================================ -->
+    <div class="modal-backdrop" id="attendance-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="attendance-modal-title">Record Attendance</h3>
+                <button class="modal-close-btn" onclick="App.closeModal('attendance-modal')">&times;</button>
+            </div>
+            <form id="attendance-form">
+                <div class="modal-body">
+                    <input type="hidden" id="attendance-form-mode" value="ADD">
+                    <input type="hidden" id="attendance-id-hidden">
+
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label>Student *</label>
+                        <select id="attendance-student-select" class="form-select" required></select>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label>Total Classes Held *</label>
+                            <input type="number" id="attendance-total-classes" min="1" max="150" value="60" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Classes Attended *</label>
+                            <input type="number" id="attendance-attended-classes" min="0" max="150" value="50" required>
+                        </div>
+                    </div>
+
+                    <div id="attendance-calc-preview" style="background:var(--bg-card-alt);padding:10px 14px;border-radius:6px;font-size:13px;border:1px solid var(--border);">
+                        Calculated Attendance: <strong>0.00%</strong>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="App.closeModal('attendance-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Attendance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- MODAL: MARKS FORM -->
+    <!-- ================================================================ -->
+    <div class="modal-backdrop" id="marks-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="marks-modal-title">Enter Subject Marks</h3>
+                <button class="modal-close-btn" onclick="App.closeModal('marks-modal')">&times;</button>
+            </div>
+            <form id="marks-form">
+                <div class="modal-body">
+                    <input type="hidden" id="marks-form-mode" value="ADD">
+                    <input type="hidden" id="marks-id-hidden">
+
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label>Student *</label>
+                        <select id="marks-student-select" class="form-select" required></select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label>Subject Name *</label>
+                        <input type="text" id="marks-subject-name" placeholder="e.g. Data Structures & Algorithms" required>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label>Internal Marks (Max 30) *</label>
+                            <input type="number" id="marks-internal" min="0" max="30" step="0.5" value="25" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>External Marks (Max 70) *</label>
+                            <input type="number" id="marks-external" min="0" max="70" step="0.5" value="60" required>
+                        </div>
+                    </div>
+
+                    <div style="background:var(--bg-card-alt);padding:12px 16px;border-radius:6px;font-size:13px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+                        <div>Total Marks: <strong id="marks-total-preview" style="font-size:16px;">85</strong> / 100</div>
+                        <div>Calculated Grade: <span class="grade-badge grade-A" id="marks-grade-preview">A</span></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="App.closeModal('marks-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Marks</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/students.js"></script>
+    <script src="js/attendance.js"></script>
+    <script src="js/marks.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/dsa.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
