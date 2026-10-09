@@ -388,7 +388,12 @@ A formal project report complete with Abstract, System Requirements Specificatio
 ---
 
 ## 👥 Authors & Academic Credits
-- **Project**: Student Record Management System (SRMS)
-- **Course**: Master of Computer Applications (MCA) / B.Tech Computer Science
-- **Subject**: Data Structures and Algorithmic Techniques Mini Project
+- **Project Title**: Student Record Management System (SRMS)
+- **Student Name**: DIVYA SUNDAR
+- **Register Number**: 26MCAB18
+- **Programme / Class**: Master of Computer Applications (MCA)
+- **Course Name**: Data Structures and Algorithmic Techniques
+- **Faculty Guide**: Prof. Abinaya S
+- **Department**: Kristu Jayanti Institute of Technology
+- **Academic Year**: 2026–2027
 

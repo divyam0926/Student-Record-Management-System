@@ -2,9 +2,13 @@
 ## STUDENT RECORD MANAGEMENT SYSTEM (SRMS)
 ### A Web-Based Platform Integrating Data Structures & Algorithmic Techniques
 
-**Academic Year**: 2025–2026  
-**Course**: Master of Computer Applications (MCA) / B.Tech Computer Science  
-**Subject**: Data Structures and Algorithmic Techniques Mini Project  
+**Student Name**: DIVYA SUNDAR  
+**Register Number**: 26MCAB18  
+**Programme / Class**: Master of Computer Applications (MCA)  
+**Course Name**: Data Structures and Algorithmic Techniques  
+**Faculty Guide**: Prof. Abinaya S  
+**Department**: Kristu Jayanti Institute of Technology  
+**Academic Year**: 2026–2027  
 **Technology Stack**: HTML5, CSS3, Vanilla JavaScript, Node.js, Express.js, MySQL 8.0  
 
 ---
