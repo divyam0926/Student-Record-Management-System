@@ -276,6 +276,7 @@ const Students = {
             const student_id = document.getElementById('student-id-input').value.trim();
             const name = document.getElementById('student-name-input').value.trim();
             const gender = document.getElementById('student-gender-input').value;
+            const dob = document.getElementById('student-dob-input').value;
             let email = document.getElementById('student-email-input').value.trim().toLowerCase();
             if (!email) {
                 const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
